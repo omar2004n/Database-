@@ -23,6 +23,8 @@ int check_repetitions(attr* tmp,attr *new);
 attr * create_attr(char info);
 attr *search_attr(relation *r,char info);
 void get_def(relation *r,attr *tmp);
+int def_len(attr *tmp);
+void merge(relation *r,attr *tmp1,attr *tmp2);
 
 int main()
 {
@@ -183,19 +185,48 @@ int def_len(attr *tmp)
     while(tmp->def[i]!=NULL)i++;
     return i;
 }
+void merge(relation *r,attr *tmp1,attr *tmp2)
+{
+    int i=0,j=def_len(tmp1);
+    while(i<def_len(tmp2))
+    {
+        if(check_repetitions(tmp1,tmp2->def[i]))
+        {i++;
+        continue ;}
+        tmp1->def=(attr **)realloc(tmp1->def,sizeof(attr)*(j+2));
+        j+=2;
+        tmp1->def[j-1]=NULL;
+        tmp1->def[j-2]=tmp2->def[i];
+        Show_Attr(r,tmp1->info);
+        i++;
+
+    }
+    return ;
+}
 void get_def(relation *r,attr *tmp)
 {
+   /* if(r==NULL||tmp==NULL)
+    {
+        printf("\nEmpty relation or attribute\n");
+        return ;
+    }
     int i,j;
     attr *t;
-    for(i=0;(t=tmp->def[i])!=NULL;i++)
+    for(i=0;i<def_len(tmp);i++)
         {
-            for(j=0;t->def[j]==NULL;j++)
+            t=tmp->def[i];
+            for(j=0;t->def[j]!=NULL;j++)
             {
                 if(check_repetitions(tmp,t->def[j]))
                 continue;
+                Show_Attr(r,tmp->info);
+                tmp->def[def_len(tmp)-1]=t->def[j];
+                tmp->def=(attr**)realloc(tmp->def,sizeof(attr)*(def_len(tmp)+1));
+                tmp->def[def_len(tmp)-1]=NULL;
+
                 
             }
-        }
+        }*/
 }
 void startscreen(relation *r)
 {
@@ -215,4 +246,6 @@ void startscreen(relation *r)
     system("clear");
     enter_functional_dep(r);
     Show_Relation(r);
+    merge(r,search_attr(r,'a'),search_attr(r,'b'));
+    Show_Attr(r,'a');
 }
