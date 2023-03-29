@@ -190,6 +190,7 @@ void merge(relation *r,attr *tmp1,attr *tmp2)
     int i=0,j=def_len(tmp1);
     while(i<def_len(tmp2))
     {
+        j=def_len(tmp1);
         if(check_repetitions(tmp1,tmp2->def[i]))
         {i++;
         continue ;}
@@ -197,7 +198,6 @@ void merge(relation *r,attr *tmp1,attr *tmp2)
         j+=2;
         tmp1->def[j-1]=NULL;
         tmp1->def[j-2]=tmp2->def[i];
-        Show_Attr(r,tmp1->info);
         i++;
 
     }
@@ -205,7 +205,7 @@ void merge(relation *r,attr *tmp1,attr *tmp2)
 }
 void get_def(relation *r,attr *tmp)
 {
-   /* if(r==NULL||tmp==NULL)
+   if(r==NULL||tmp==NULL)
     {
         printf("\nEmpty relation or attribute\n");
         return ;
@@ -217,20 +217,15 @@ void get_def(relation *r,attr *tmp)
             t=tmp->def[i];
             for(j=0;t->def[j]!=NULL;j++)
             {
-                if(check_repetitions(tmp,t->def[j]))
-                continue;
-                Show_Attr(r,tmp->info);
-                tmp->def[def_len(tmp)-1]=t->def[j];
-                tmp->def=(attr**)realloc(tmp->def,sizeof(attr)*(def_len(tmp)+1));
-                tmp->def[def_len(tmp)-1]=NULL;
-
-                
+                merge(r,tmp,t);
             }
-        }*/
+        }
 }
 void startscreen(relation *r)
 {
+    attr *tmp;
     char c='c';
+    int i=0;
     system("clear");
     printf("\nEnter all the attributs (if you're done enter 0) :\n");
     while(c!='0')
@@ -243,9 +238,26 @@ void startscreen(relation *r)
     link_attr(r,create_attr(c));
     //else printf("\nInvalid name !");
     }
+    c='+';
     system("clear");
     enter_functional_dep(r);
-    Show_Relation(r);
-    merge(r,search_attr(r,'a'),search_attr(r,'b'));
-    Show_Attr(r,'a');
+    system("clear");
+    while(c!='0')
+    {
+        printf("\nEnter the attributs to get the closure if (finished enter 0)");
+        c =getchar();
+        getchar();
+        
+        if(c=='0')
+        break;
+        if(tmp==NULL)continue;
+        if(i==0)
+        tmp=search_attr(r,c);
+        merge(r,tmp,search_attr(r,c));
+        i++;
+    }
+    get_def(r,tmp);
+    Show_Attr(r,tmp->info);
+    //Show_Relation(r);
+    
 }
